@@ -1,2 +1,2 @@
-from trancesection import ts
+from trancesection import app
 app.run(debug=True)
