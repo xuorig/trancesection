@@ -3,9 +3,13 @@ from bs4 import BeautifulSoup
 from urllib2 import urlopen
 
 
-
+#returns empty list if cannot open page
 def getTracks(url):
-    page = urlopen(url)
+    try:
+        page = urlopen(url)
+    except:
+        return []
+
     soup = BeautifulSoup(page)
     raw = soup.get_text()
     block = raw.split('\n\n')
@@ -16,11 +20,16 @@ def getTracks(url):
                 tracks = i
 
     rawList = tracks.split('\n')
-    trackList = []
-    for i in rawList:
-        index = i.find('.')
-        trackList.append(i[index+1:len(i)])
+    trackList = [i[i.find('.')+1:len(i)] for i in rawList]
 
     return trackList
 
-getTracks("http://www.aboveandbeyond.nu/radio/abgt058")
+def urlNum(num):
+    if type(num) == int:
+        num = str(num)
+    if len(num) < 3:
+        while (len(num) < 3):
+            num = '0' + num
+
+    url = 'http://www.aboveandbeyond.nu/radio/abgt%s' % num
+    return getTracks(url)
