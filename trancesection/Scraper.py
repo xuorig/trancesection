@@ -15,5 +15,5 @@ class Scraper(object):
     def scrape(self, num):
         if type(num) == int:
             num = str(num)
-        url = base + num
-        return getTracks(url)
+        url = self.base + num
+        return self.getTracks(url)
