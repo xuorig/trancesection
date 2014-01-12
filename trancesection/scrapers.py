@@ -1,9 +1,42 @@
 #!/usr/bin/python
 from bs4 import BeautifulSoup
 from urllib2 import urlopen
-from Scraper import Scraper
 
-class abgtScraper(Scraper):
+# scraper superclass
+
+class Scraper(object):
+    # base is url without episode number
+    def __init__(self, base):
+        self.base = base
+
+    def getTracks(self, url):
+        raise NotImplementedError
+
+    def scrape(self, num):
+        if type(num) == int:
+            num = str(num)
+        url = self.base + num
+        return self.getTracks(url)
+
+# uses the superclass's scrape
+class FsoeScraper(Scraper):
+
+    def __init__(self):
+        super(fsoeScraper, self).__init__('http://www.futuresoundofegypt.com/radio/fsoe')
+
+    def getTracks(self, url):
+        try:
+            page = urlopen(url)
+        except:
+            return []
+        soup = BeautifulSoup(page)
+        raw = soup.findAll('ol')
+        tracks = raw[0].text
+        tracks = tracks.strip()
+        trackList = tracks.split('\n')
+        return trackList
+
+class AbgtScraper(Scraper):
     def __init__(self):
         super(abgtScraper, self).__init__('http://www.aboveandbeyond.nu/radio/abgt')
 
@@ -35,5 +68,4 @@ class abgtScraper(Scraper):
         url = 'http://www.aboveandbeyond.nu/radio/abgt%s' % num
         return self.getTracks(url)
 
-abgt = abgtScraper()
-abgt.scrape(50)
+
