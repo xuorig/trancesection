@@ -1,30 +1,30 @@
 #!/usr/bin/python
 from bs4 import BeautifulSoup
 from urllib2 import urlopen
+from trancesection import app
+import xml.etree.ElementTree as et
+from multiprocessing.dummy import Pool as ThreadPool
+from copy_reg import pickle
+from types import MethodType
 
-# scraper superclass
+#Need this because instance methods are not pickleable..
+def scraper_process_wrapper(scraper,episode):
+    scraper.scrape_episode(episode)
 
 class Scraper(object):
-    # base is url without episode number
-    def __init__(self, base):
-        self.base = base
-
-    def getTracks(self, url):
-        raise NotImplementedError
-
-    def scrape(self, num):
-        if type(num) == int:
-            num = str(num)
-        url = self.base + num
-        return self.getTracks(url)
-
-# uses the superclass's scrape
-class FsoeScraper(Scraper):
 
     def __init__(self):
-        super(fsoeScraper, self).__init__('http://www.futuresoundofegypt.com/radio/fsoe')
+        pass
 
-    def getTracks(self, url):
+    def scrape(self):
+        raise NotImplementedError
+
+class FsoeScraper(Scraper):
+
+     def __init__(self):
+        self.index_url = app.config['FSOE_RSS_URL']
+
+    def scrape_episode(self, url):
         try:
             page = urlopen(url)
         except:
@@ -36,16 +36,42 @@ class FsoeScraper(Scraper):
         trackList = tracks.split('\n')
         return trackList
 
+    def scrape(self):
+        pass
+
 class AbgtScraper(Scraper):
     def __init__(self):
-        super(abgtScraper, self).__init__('http://www.aboveandbeyond.nu/radio/abgt')
+        self.index_url = app.config['ABGT_INDEX_URL']
 
-    #returns empty list if cannot open page
-    def getTracks(self, url):
+    def get_episode_urls(self):
+        """ Get every episode url so we can scrape them """
+        try:
+            page = urlopen(self.index_url)
+        except:
+            return []
+
+        xml_string = page.read()
+        root = et.fromstring(xml_string)
+        #find all urls from the rss feed (with a little hack to get only the ABGT podcasts)
+        urls = [ep.find('link').text for ep in root[0].findall('item') if '.mp3' not in ep.find('link').text]
+        #another hack because the first episodes links are broken for some reason...
+        urls[0] = 'http://www.aboveandbeyond.nu/radio/abgt001'
+        urls[1] = 'http://www.aboveandbeyond.nu/radio/abgt002'
+        urls[2] = 'http://www.aboveandbeyond.nu/radio/abgt003'
+        urls[3] = 'http://www.aboveandbeyond.nu/radio/abgt004'
+        urls[4] = 'http://www.aboveandbeyond.nu/radio/abgt005'
+
+        return urls
+
+    def scrape_episode(self, url):
+        """Scrapes the episode and adds it to the DB"""
+        print('parsing episode %s' % url)
         try:
             page = urlopen(url)
         except:
-            return []
+            print 'got a 404..:('
+            return
+
         soup = BeautifulSoup(page)
         raw = soup.get_text()
         block = raw.split('\n\n')
@@ -58,29 +84,21 @@ class AbgtScraper(Scraper):
         trackList = [i[i.find('.')+1:len(i)] for i in rawList]
         return trackList
 
-    def scrape(self, num):
-        if type(num) == int:
-            num = str(num)
-        if len(num) < 3:
-            while (len(num) < 3):
-                num = '0' + num
+    def scrape(self):
+        """ Scrape and add to database """
+        episodes = self.get_episode_urls()
+        pool = ThreadPool(4)
+        episodes = pool.map(lambda x:scraper_process_wrapper(self,x), episodes)
+        pool.close()
+        pool.join()
+        return episodes
 
-        url = 'http://www.aboveandbeyond.nu/radio/abgt%s' % num
-        return self.getTracks(url)
-
-# uses superclass's scrape
 class IntDeptScraper(Scraper):
     def __init__(self):
-        super(IntDeptScraper, self).__init__('http://www.myonandshane54.com/radio.php?episode=')
+        self.index_url = app.config['ABGT_INDEX_URL']
 
-    def getTracks(self, url):
-        try:
-            page = urlopen(url)
-        except:
-            return []
-        soup = BeautifulSoup(page)
-        raw = soup.get_text()
-        block = raw.split('\n\n')
+    def get_track_list_from_rss(self, rss_text):
+        block = rss_text.split('\n\n')
         tracks = ''
         for i in block:
             if (len(i) > 0):
@@ -89,4 +107,6 @@ class IntDeptScraper(Scraper):
         rawList = tracks.split('\n')
         trackList = [i[4:len(i)] for i in rawList if (i[2] == '.') ]
         return trackList
-        
+
+    def scrape(self):
+        pass
