@@ -77,11 +77,11 @@ class AbgtScraper(Scraper):
         block = raw.split('\n\n')
         tracks = ''
         for i in block:
-            if (len(i) > 0):
-                if (i[0] == '1'):
+            if (len(i) > 2):
+                if (i[1] == '.' or i[2] == '.'):
                     tracks = i
         rawList = tracks.split('\n')
-        trackList = [i[i.find('.')+1:len(i)] for i in rawList]
+        trackList = [i[i.find('.')+2:len(i)] for i in rawList if i.find('.') != -1]
         return trackList
 
     def scrape(self):
@@ -110,3 +110,21 @@ class IntDeptScraper(Scraper):
 
     def scrape(self):
         pass
+
+class AsotScraper(Scraper):
+
+    def __init__(self):
+        super(AsotScraper, self).__init__('http://www.astateoftrance.com/podcasts/podcast-')
+
+    def getTracks(self, url):
+        try:
+            page = urlopen(url)
+        except:
+            return []
+        soup = BeautifulSoup(page)
+        raw = soup.findAll('ol')
+        soup = BeautifulSoup(str(raw[0]))
+        artists = [i.text for i in soup.findAll('strong')]
+        rawList = raw[0].text.strip().split('\n')
+        trackList = [j.replace(i, i + ' - ', 1) for i, j in zip(artists, rawList)]
+        return trackList
