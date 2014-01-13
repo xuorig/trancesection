@@ -4,13 +4,13 @@ from trancesection import db
 class Podcast(db.Model):
     __tablename__ = 'podcasts'
     id = db.Column('podcast_id', db.Integer, primary_key=True)
-    name = db.Column(dbe.String(200))
+    name = db.Column(db.String(200))
     trax = db.relationship('Track', backref = 'podcast', lazy = 'dynamic')
 
     def __repr__(self):
         return '<Podcast %r>' % (self.name)
 
-class Track(db.Model)
+class Track(db.Model):
     __tablename__ = 'tracks'
     id = db.Column('track_id', db.Integer, primary_key=True)
     podcast_id = db.Column(db.Integer, db.ForeignKey('podcasts.podcast_id'))
