@@ -68,4 +68,25 @@ class AbgtScraper(Scraper):
         url = 'http://www.aboveandbeyond.nu/radio/abgt%s' % num
         return self.getTracks(url)
 
+# uses superclass's scrape
+class IntDeptScraper(Scraper):
+    def __init__(self):
+        super(IntDeptScraper, self).__init__('http://www.myonandshane54.com/radio.php?episode=')
 
+    def getTracks(self, url):
+        try:
+            page = urlopen(url)
+        except:
+            return []
+        soup = BeautifulSoup(page)
+        raw = soup.get_text()
+        block = raw.split('\n\n')
+        tracks = ''
+        for i in block:
+            if (len(i) > 0):
+                if (i[2] == '.'):
+                    tracks = i
+        rawList = tracks.split('\n')
+        trackList = [i[4:len(i)] for i in rawList if (i[2] == '.') ]
+        return trackList
+        
