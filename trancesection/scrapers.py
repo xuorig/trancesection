@@ -108,6 +108,21 @@ class IntDeptScraper(Scraper):
         trackList = [i[4:len(i)] for i in rawList if (i[2] == '.') ]
         return trackList
 
+    # returns a dict of ep:tracklist
+    def scrape_rss(self, url):
+        page = urlopen('url')
+        xml_string = page.read()
+        root = et.fromstring(xml_string)
+        track_dict = {}
+        for ep in root[0].findall('item'):
+            if ep.find('description').text[2] == '.':
+                ep_name = ep.find('title').text
+                tracklist = [track[track.find('.')+2:] for track in ep.find('description').text.split('\n')]
+                add_episode_to_db(ep_name, tracklist)
+
+    def add_episode_to_db(ep_name, tracklist):
+        pass
+
     def scrape(self):
         pass
 
