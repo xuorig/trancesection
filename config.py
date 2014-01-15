@@ -7,3 +7,7 @@ DEBUG = True
 SECRET_KEY = 'development key'
 USERNAME = 'admin'
 PASSWORD = 'default'
+
+#URLS FOR SCRAPERS
+ABGT_INDEX_URL = 'http://www.tatw.co.uk/podcast.xml'
+

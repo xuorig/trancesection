@@ -41,7 +41,7 @@ class FsoeScraper(Scraper):
 
 class AbgtScraper(Scraper):
     def __init__(self):
-        self.index_url = app.config['ABGT_INDEX_URL']
+        self.index_url = app.config['ABGT_RSS_URL']
 
     def get_episode_urls(self):
         """ Get every episode url so we can scrape them """
@@ -95,7 +95,7 @@ class AbgtScraper(Scraper):
 
 class IntDeptScraper(Scraper):
     def __init__(self):
-        self.index_url = app.config['ABGT_INDEX_URL']
+        self.index_url = app.config['ID_RSS_URL']
 
     def get_track_list_from_rss(self, rss_text):
         block = rss_text.split('\n\n')
