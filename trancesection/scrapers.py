@@ -4,8 +4,13 @@ from urllib2 import urlopen
 from trancesection import app
 import xml.etree.ElementTree as et
 from multiprocessing.dummy import Pool as ThreadPool
+
 from copy_reg import pickle
 from types import MethodType
+
+from trancesection import db
+from trancesection.models import Podcast, Episode, Track
+
 
 #Need this because instance methods are not pickleable..
 def scraper_process_wrapper(scraper,episode):
@@ -16,6 +21,24 @@ class Scraper(object):
     def __init__(self):
         pass
 
+    def add_episode_to_db(self,podcast,episode_name,track_list):
+
+        #Create new podcast
+        podcast_id = Podcast.query.filter_by(name=podcast).first().id
+        episode = Episode(episode_name,podcast_id)
+        db.session.add(episode)
+
+        #Flush so we can know the episode id
+        db.session.flush()
+ 
+        #add tracks
+        for track in track_list:
+            track = Track(track,episode.id)
+            db.session.add(track)
+
+        db.session.commit()
+        db.session.close()
+
     def scrape(self):
         raise NotImplementedError
 
@@ -24,7 +47,7 @@ class FsoeScraper(Scraper):
      def __init__(self):
         self.index_url = app.config['FSOE_RSS_URL']
 
-    def scrape_episode(self, url):
+     def scrape_episode(self, url):
         try:
             page = urlopen(url)
         except:
@@ -36,12 +59,13 @@ class FsoeScraper(Scraper):
         trackList = tracks.split('\n')
         return trackList
 
-    def scrape(self):
+     def scrape(self):
         pass
 
 class AbgtScraper(Scraper):
     def __init__(self):
         self.index_url = app.config['ABGT_RSS_URL']
+        self.podcast_name = 'Group Therapy'
 
     def get_episode_urls(self):
         """ Get every episode url so we can scrape them """
@@ -72,6 +96,7 @@ class AbgtScraper(Scraper):
             print 'got a 404..:('
             return
 
+        ep_name = url.rsplit('/',1)[1]
         soup = BeautifulSoup(page)
         raw = soup.get_text()
         block = raw.split('\n\n')
@@ -81,8 +106,10 @@ class AbgtScraper(Scraper):
                 if (i[1] == '.' or i[2] == '.'):
                     tracks = i
         rawList = tracks.split('\n')
-        trackList = [i[i.find('.')+2:len(i)] for i in rawList if i.find('.') != -1]
-        return trackList
+        track_list = [i[i.find('.')+2:len(i)] for i in rawList if i.find('.') != -1]
+
+        #Found the track list now add it to db
+        self.add_episode_to_db(self.podcast_name,ep_name,track_list)
 
     def scrape(self):
         """ Scrape and add to database """
@@ -109,7 +136,7 @@ class IntDeptScraper(Scraper):
         return trackList
 
     # returns a dict of ep:tracklist
-    def scrape_rss(self, url):
+    def scrape(self, url):
         page = urlopen('url')
         xml_string = page.read()
         root = et.fromstring(xml_string)

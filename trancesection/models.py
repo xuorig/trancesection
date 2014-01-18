@@ -2,33 +2,41 @@ from trancesection import db
 
 
 class Podcast(db.Model):
-    __tablename__ = 'podcasts'
-    id = db.Column('podcast_id', db.Integer, primary_key=True)
+    id = db.Column(db.Integer, primary_key=True)
     name = db.Column(db.String(200))
     episodes = db.relationship('Episode', backref = 'podcast', lazy = 'dynamic')
+
+    def __init__(self, name):
+        self.name = name
 
     def __repr__(self):
         return '<Podcast %r>' % (self.name)
 
 class Episode(db.Model):
-    __tablename__ = 'episodes'
-    id = db.Column('episode_id', db.Integer, primary_key=True)
+    id = db.Column(db.Integer, primary_key=True)
     number = db.Column(db.String(200))
-    podcast_id = db.Column(db.Integer, db.ForeignKey('Podcast.podcast_id'))
+    podcast_id = db.Column(db.Integer, db.ForeignKey('podcast.id'))
     trax = db.relationship('Track', backref = 'episode', lazy = 'dynamic')
+
+    def __init__(self, number, podcast_id):
+        self.number = number
+        self.podcast_id = podcast_id
 
     def __repr__(self):
         return '<Episode %r>' % (self.number)
 
 
 class Track(db.Model):
-    __tablename__ = 'tracks'
-    id = db.Column('track_id', db.Integer, primary_key=True)
-    episode_id = db.Column(db.Integer, db.ForeignKey('Episode.episode_id'))
+    id = db.Column(db.Integer, primary_key=True)
+    episode_id = db.Column(db.Integer, db.ForeignKey('episode.id'))
     name = db.Column(db.String(50))
     youtube_url = db.Column(db.String(50))
     grooveshark_url = db.Column(db.String(50))
     soundcloud_url = db.Column(db.String(50))
+
+    def __init__(self,name,episode_id):
+        self.name = name
+        self.episode_id = episode_id
 
     def __repr__(self):
         return '<Track %r>' % (self.name)
