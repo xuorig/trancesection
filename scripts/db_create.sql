@@ -1,3 +1,0 @@
-DROP TABLE IF EXISTS podcasts;
-DROP TABLE IF EXISTS episodes;
-DROP TABLE IF EXISTS tracks;

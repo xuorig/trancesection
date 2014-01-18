@@ -146,13 +146,7 @@ class IntDeptScraper(Scraper):
                 ep_name = ep.find('title').text
                 tracklist = [track[track.find('.')+2:] for track in ep.find('description').text.split('\n')]
                 add_episode_to_db(ep_name, tracklist)
-
-    def add_episode_to_db(ep_name, tracklist):
-        pass
-
-    def scrape(self):
-        pass
-
+                
 class AsotScraper(Scraper):
 
     def __init__(self):

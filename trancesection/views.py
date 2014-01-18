@@ -16,7 +16,8 @@ def index():
 
 @app.route('/<podcast>')
 def podcast(podcast):
- 	return render_template('podcast.html')
+	#podcast = Podcast.query.filter_by(Podcast.slug=podcast).first()
+ 	return render_template('podcast.html',podcast=podcast)
 
 # @app.route('/<podcast>/<episode>')
 # def episode():
