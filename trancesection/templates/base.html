@@ -1,0 +1,82 @@
+
+<!doctype html>
+<!--[if IE 9]><html class="lt-ie10" lang="en" > <![endif]-->
+<html class="no-js" lang="en" data-useragent="Mozilla/5.0 (compatible; MSIE 10.0; Windows NT 6.2; Trident/6.0)">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Trancesection</title>
+
+    
+    <meta name="description" content="Documentation and reference library for ZURB Foundation. JavaScript, CSS, components, grid and more." />
+    
+    <meta name="author" content="ZURB, inc. ZURB network also includes zurb.com" />
+    <meta name="copyright" content="ZURB, inc. Copyright (c) 2013" />
+
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/foundation.css') }}" />
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/trancesection.css') }}" />
+    <script src="{{ url_for('static', filename='js/modernizr.js') }}"></script>
+  </head>
+  <body>
+    
+
+<!-- Navigation -->
+
+  <nav class="top-bar" data-topbar>
+    <ul class="title-area">
+      <!-- Title Area -->
+      <li class="name">
+        <h1>
+          <a href="#">
+            TRANCESECTION
+          </a>
+        </h1>
+      </li>
+      <li class="toggle-topbar menu-icon"><a href="#"><span>menu</span></a></li>
+    </ul>
+
+  </nav>
+ 
+  <!-- End Top Bar -->
+
+  <!-- Header -->
+        <img src="{{ url_for('static', filename='img/trance.png') }}"><br><br>
+
+  <!-- End Header -->
+
+<div id="content"> {% block content %} {% endblock %}</div>
+
+  <!-- Footer -->
+
+  <footer class="row">
+  <div class="large-12 columns"><hr />
+      <div class="row">
+
+        <div class="large-6 columns">
+            <p>&copy; Copyright no one at all. Go to town.</p>
+        </div>
+
+        <div class="large-6 columns">
+            <ul class="inline-list right">
+              <li><a href="#">Link 1</a></li>
+              <li><a href="#">Link 2</a></li>
+              <li><a href="#">Link 3</a></li>
+              <li><a href="#">Link 4</a></li>
+            </ul>
+        </div>
+
+      </div>
+  </div>
+  </footer>
+    <script src="{{ url_for('static', filename='js/jquery.js') }}"></script>
+    <script src="{{ url_for('static', filename='js/foundation.js') }}"></script>
+    <script>
+      $(document).foundation();
+
+      var doc = document.documentElement;
+      doc.setAttribute('data-useragent', navigator.userAgent);
+    </script>
+  </body>
+</html>
+
+

@@ -26,7 +26,7 @@ class Scraper(object):
         #Create new podcast
         podcast_id = Podcast.query.filter_by(name=podcast).first().id
         episode = Episode(episode_name,podcast_id)
-        db.session.add(episode)
+        db.session.merge(episode)
 
         #Flush so we can know the episode id
         db.session.flush()
