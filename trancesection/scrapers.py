@@ -14,12 +14,17 @@ from trancesection.models import Podcast, Episode, Track
 import logging
 from logging.handlers import RotatingFileHandler
 
+import soundcloud
+
 
 #Need this because instance methods are not pickleable..
 def scraper_process_wrapper(scraper,episode):
     scraper.scrape_episode(episode)
 
 class Scraper(object):
+
+    def __init__(self):
+        self.soundcloudclient = soundcloud.Client(client_id='e926a44d2e037d8e80e98008741fdf91')
 
     def add_episode_to_db(self,podcast,episode_name,track_list):
 
@@ -35,8 +40,9 @@ class Scraper(object):
             #add tracks
             for track in track_list:
                 epi_id = Episode.query.filter_by(number=episode_name).first().id
-                track = Track(track,epi_id)
-                db.session.add(track)
+                t = Track(track,epi_id)
+                t.soundcloud_url = self.get_soundcloud_url(track)
+                db.session.add(t)
 
             db.session.commit()
             db.session.close()
@@ -45,6 +51,14 @@ class Scraper(object):
 
         except Exception,e:
             raise
+
+    def get_soundcloud_url(self, name):
+        tracks = self.soundcloudclient.get('/tracks', q=name)
+        #pls be good track pls
+        if tracks:
+            return tracks[0].uri
+        else:
+            return ''
 
     def scrape(self):
         raise NotImplementedError
@@ -71,6 +85,7 @@ class FsoeScraper(Scraper):
 
 class AbgtScraper(Scraper):
     def __init__(self):
+        Scraper.__init__(self)
         self.index_url = app.config['ABGT_RSS_URL']
         self.podcast_name = 'Group Therapy'
 

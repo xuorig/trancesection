@@ -3,6 +3,9 @@ from flask import render_template
 from scrapers import Scraper, AbgtScraper
 from trancesection.models import Podcast,Episode,Track
 from trancesection import init_db
+import soundcloud
+
+sc_client = soundcloud.Client(client_id='e926a44d2e037d8e80e98008741fdf91')
 
 @app.route('/')
 @app.route('/index')
@@ -33,10 +36,10 @@ def episode(podcast,episode):
  	print tracks
  	return render_template('episode.html',episode=epi,pcname=pcname,tracks=tracks)
 
-# @app.route('/podcasts/<podcast>/<episode>')
-# def episode(podcast,episode):
-# 	return render_template('episode.html')
+@app.route('/tracks/<trackname>/')
+def track(trackname):
+ 	tr = Track.query.filter_by(slug=trackname).first()
+ 	embed_info = sc_client.get('/oembed', url=tr.soundcloud_url)
+ 	trackhtml = embed_info.html
+	return render_template('track.html',tr=tr,trackhtml=trackhtml)
 
-#@app.route('/podcasts/<podcast>/<episode>/<track>')
-#def track():
-# 	return render_template('track.html')
