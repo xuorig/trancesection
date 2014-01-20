@@ -10,7 +10,9 @@ def main():
 	# Making a pool of 4 workers (Should play with that number to see whats best)
 	pool = ThreadPool(4)
 	# Call scrape on each scraper
-
+	pool.map(lambda x: x.scrape(),SCRAPERS)
+	pool.close()
+	pool.join()
 
 if __name__ == "__main__":
 	main()

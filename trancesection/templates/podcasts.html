@@ -1,0 +1,25 @@
+{% extends "base.html" %}
+
+{% block content %}
+
+<div class="even-row">
+<div class="row">
+<h1> Podcasts </h1>
+</div>
+</div>
+
+{% for podcast in podcasts %}
+<div class=" {{ loop.cycle('odd-row','even-row') }}">
+<div class="row">
+  <div class="large-3 columns"><img class="th podcast_image" src="{{ podcast.imgurl }}"></div>
+  <div class="large-9 columns"><p class="podcast_name"><a href="/podcasts/{{ podcast.slug }}">{{ podcast.name }} by {{ podcast.author }} {{podcast.slug}}</a></p></div>
+</div>
+</div>
+
+{% endfor %}
+
+
+{% endblock %}
+
+  
+

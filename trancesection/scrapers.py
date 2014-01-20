@@ -11,6 +11,9 @@ from types import MethodType
 from trancesection import db
 from trancesection.models import Podcast, Episode, Track
 
+import logging
+from logging.handlers import RotatingFileHandler
+
 
 #Need this because instance methods are not pickleable..
 def scraper_process_wrapper(scraper,episode):
@@ -18,26 +21,30 @@ def scraper_process_wrapper(scraper,episode):
 
 class Scraper(object):
 
-    def __init__(self):
-        pass
-
     def add_episode_to_db(self,podcast,episode_name,track_list):
 
-        #Create new podcast
-        podcast_id = Podcast.query.filter_by(name=podcast).first().id
-        episode = Episode(episode_name,podcast_id)
-        db.session.merge(episode)
+        try:
+            #Create new podcast
+            podcast_id = Podcast.query.filter_by(name=podcast).first().id
+            episode = Episode(episode_name,podcast_id)
+            db.session.add(episode)
 
-        #Flush so we can know the episode id
-        db.session.flush()
- 
-        #add tracks
-        for track in track_list:
-            track = Track(track,episode.id)
-            db.session.add(track)
+            #Flush so we can know the episode id
+            db.session.commit()
+     
+            #add tracks
+            for track in track_list:
+                epi_id = Episode.query.filter_by(number=episode_name).first().id
+                track = Track(track,epi_id)
+                db.session.add(track)
 
-        db.session.commit()
-        db.session.close()
+            db.session.commit()
+            db.session.close()
+
+            return True
+
+        except Exception,e:
+            raise
 
     def scrape(self):
         raise NotImplementedError
@@ -89,12 +96,12 @@ class AbgtScraper(Scraper):
 
     def scrape_episode(self, url):
         """Scrapes the episode and adds it to the DB"""
-        print('parsing episode %s' % url)
+        #app.logging.info('parsing episode %s' % url)
         try:
             page = urlopen(url)
         except:
-            print 'got a 404..:('
-            return
+            #app.logger.error('Something went wrong when opening url %s :(' % url)
+            return False
 
         ep_name = url.rsplit('/',1)[1]
         soup = BeautifulSoup(page)
@@ -107,9 +114,8 @@ class AbgtScraper(Scraper):
                     tracks = i
         rawList = tracks.split('\n')
         track_list = [i[i.find('.')+2:len(i)] for i in rawList if i.find('.') != -1]
-
         #Found the track list now add it to db
-        self.add_episode_to_db(self.podcast_name,ep_name,track_list)
+        return self.add_episode_to_db(self.podcast_name,ep_name,track_list)
 
     def scrape(self):
         """ Scrape and add to database """
@@ -146,7 +152,7 @@ class IntDeptScraper(Scraper):
                 ep_name = ep.find('title').text
                 tracklist = [track[track.find('.')+2:] for track in ep.find('description').text.split('\n')]
                 add_episode_to_db(ep_name, tracklist)
-                
+
 class AsotScraper(Scraper):
 
     def __init__(self):

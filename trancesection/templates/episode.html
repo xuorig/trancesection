@@ -4,8 +4,8 @@
 
 <div class="even-row">
 <div class="row">
-<h1> {{ pc.name }} </h1>
-<h3 class="subtitle"> {{ pc.author }} </h3>
+<h1> {{ episode.number }} </h1>
+<h3 class="subtitle"> {{ pcname }} </h3>
 </div>
 </div>
 
@@ -18,8 +18,8 @@
 <div class="row">
 
 <ul class="small-block-grid-3">
-{% for episode in episodes %}
-  <li><a href="/podcasts/{{ pc.slug }}/{{ episode.number }}">{{ episode.number }}</a></li>
+{% for track in tracks %}
+  <li><a href="/tracks/{{ track.slug }}">{{ track.name }}</a></li>
 {% endfor %}
 </ul>
 

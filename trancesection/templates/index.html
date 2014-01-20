@@ -1,25 +1,42 @@
 {% extends "base.html" %}
 
 {% block content %}
+  <!-- Header -->
+        <img src="{{ url_for('static', filename='img/trance.png') }}"><br><br>
+
+  <!-- End Header -->
 
   <div class="row">
     <h2>Podcasts</h2>
+
+    
     <ul class="small-block-grid-3">
       {% for podcast in podcasts %}
-        <li><img class="th podcast_image" src="{{ podcast.imgurl }}"></li>
+        <li><a href="/podcasts/{{ podcast.slug }}"><img class="th podcast_image" src="{{ podcast.imgurl }}"></a></li>
       {% endfor %}
     </ul>
+
+    <a href="/podcasts">View all</a>
+
+
+
+
   </div>
 
   <hr>
 
   <div class="row">
     <h2>Newest Episodes</h2>
-      <ul class="no-bullet">
+      <ul class="small-block-grid-3">
         {% for name, episode in episodes %}
           <li><a href="#">{{ name }} {{ episode.number }}</a></li>
         {% endfor %}
       </ul>
+
+    <br/>
+    <br/>
+
+    <a href="/episodes">View all</a>
   </div>
 
   <hr>
