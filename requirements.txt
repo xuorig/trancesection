@@ -11,3 +11,5 @@ pytz
 flask-babel
 flup
 beautifulsoup4
+google-api-python-client
+soundcloud
