@@ -1,8 +1,10 @@
 from trancesection import app
-from flask import render_template
+from flask import render_template, jsonify, request
 from scrapers import Scraper, AbgtScraper
 from trancesection.models import Podcast,Episode,Track
 from trancesection import init_db
+
+import trancesection.matchmaking as mm
 import soundcloud
 
 sc_client = soundcloud.Client(client_id='e926a44d2e037d8e80e98008741fdf91')
@@ -10,6 +12,7 @@ sc_client = soundcloud.Client(client_id='e926a44d2e037d8e80e98008741fdf91')
 @app.route('/')
 @app.route('/index')
 def index():
+
 	episode_list = Episode.query.order_by(Episode.created_on).limit(10).all()
 	episodes = [(Podcast.query.get(x.podcast_id).name, x) for x in episode_list]
 	podcasts = Podcast.query.limit(6).all()
@@ -39,7 +42,13 @@ def episode(podcast,episode):
 @app.route('/tracks/<trackname>/')
 def track(trackname):
  	tr = Track.query.filter_by(slug=trackname).first()
- 	embed_info = sc_client.get('/oembed', url=tr.soundcloud_url)
- 	trackhtml = embed_info.html
-	return render_template('track.html',tr=tr,trackhtml=trackhtml)
+	return render_template('track.html',tr=tr)
+
+@app.route('/_find_match')
+def find_match():
+	track_name = request.args.get('track_name','')
+	track_embed = dict(html = mm.find_match(track_name))
+	print track_embed
+	return jsonify(track_embed)
+
 

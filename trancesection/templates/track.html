@@ -2,21 +2,30 @@
 
 {% block content %}
 
+<script src="{{ url_for('static', filename='js/jquery.js') }}"></script>
+<script type="text/javascript">
+
+	// The ajax code to load the track embed player!
+	$( document ).ready(function() {
+		find_track()
+	});
+
+</script>
+
 <div class="even-row">
 <div class="row">
 <h1> {{ tr.name }} </h1>
+<input type="hidden" name="track" value="{{ tr.name }}"/>
 </div>
 </div>
 
-<div class="row">
-{{ trackhtml|safe }}
+<div id="track" class="row">
+
+	<center><p>One sec, We are finding the best match to this song!</p> <br> <img src="{{ url_for('static', filename='img/ajax-loader_blue.gif') }}"/></center>
+</div>
 
 <a href="#"> Wrong song ? Tell us! </a>
 </div>
-
-
-
-
 
 {% endblock %}
 

@@ -10,6 +10,7 @@ from types import MethodType
 
 from trancesection import db
 from trancesection.models import Podcast, Episode, Track
+from trancesection.matchmaking import find_match
 
 import logging
 from logging.handlers import RotatingFileHandler
@@ -41,7 +42,7 @@ class Scraper(object):
             for track in track_list:
                 epi_id = Episode.query.filter_by(number=episode_name).first().id
                 t = Track(track,epi_id)
-                t.soundcloud_url = self.get_soundcloud_url(track)
+                #t.html = find_match(track)
                 db.session.add(t)
 
             db.session.commit()

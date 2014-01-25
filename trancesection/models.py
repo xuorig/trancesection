@@ -42,9 +42,7 @@ class Track(db.Model):
     episode_id = db.Column(db.Integer, db.ForeignKey('episode.id'))
     name = db.Column(db.String(50))
     slug = db.Column(db.String(200))
-    youtube_url = db.Column(db.String(50))
-    grooveshark_url = db.Column(db.String(50))
-    soundcloud_url = db.Column(db.String(50))
+    html = db.Column(db.String(50))
     created_on = db.Column(db.DateTime, default=db.func.now())
     updated_on = db.Column(db.DateTime, default=db.func.now(), onupdate=db.func.now())
 
